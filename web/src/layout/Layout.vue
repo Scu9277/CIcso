@@ -1,0 +1,99 @@
+<template>
+  <el-container style="height: 100%;">
+    <!--侧边栏菜单-->
+    <el-aside :width="is_active?'240':'64'">
+      <LayoutAside :is_active="is_active" :route_path="route_path"/>
+    </el-aside>
+
+    <el-container>
+      <!--正文头部内容-->
+      <el-header>
+        <!--监听子组件的变量事件-->
+        <LayoutHeader :is_active.sync="is_active" :route_name="route_name"/>
+      </el-header>
+      <!--正文内容-->
+      <!--style="background-color: rgb(240, 242, 245);"-->
+      <el-main style="background-color: #f5f7fa">
+        <!-- 对应的组件内容渲染到router-view中 -->
+        <!--子组件上报route信息-->
+        <router-view :route_path.sync="route_path" :route_name.sync="route_name"></router-view>
+      </el-main>
+      <el-footer>
+        <div class="footer-content">
+          <span class="footer-text">© 2020-{{ new Date().getFullYear() }} Scu SSLVPN</span>
+          <span class="footer-divider">|</span>
+          <span class="footer-text">企业级远程办公系统</span>
+        </div>
+      </el-footer>
+    </el-container>
+  </el-container>
+</template>
+
+<script>
+import LayoutAside from "@/layout/LayoutAside";
+import LayoutHeader from "@/layout/LayoutHeader";
+
+export default {
+  name: "Layout",
+  components: {LayoutHeader, LayoutAside},
+  data() {
+    return {
+      is_active: true,
+      route_path: '/index',
+      route_name: ['首页'],
+    }
+  },
+  methods: {
+    goUrl(url) {
+      window.open(url, "_blank")
+    },
+  },
+  watch: {
+    route_path: function (val) {
+      // var w = document.getElementById('layout-menu').clientWidth;
+      window.console.log('is_active', val)
+    },
+  },
+  created() {
+    window.console.log('layout-route', this.$route)
+  },
+}
+</script>
+
+<style>
+.el-header {
+  background-color: #fff;
+  color: #333;
+  line-height: 60px;
+  border-bottom: 1px solid #e4e7ed;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.el-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 16px;
+  background-color: #fff;
+  border-top: 1px solid #e4e7ed;
+  color: #909399;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-text {
+  color: #909399;
+}
+
+.footer-divider {
+  color: #dcdfe6;
+}
+
+</style>
