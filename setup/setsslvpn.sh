@@ -33,15 +33,19 @@ SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 
 # 打印函数
 print_info() {
-    echo -e "${GREEN}[信息]${NC} $1"
+    echo -e "${GREEN}✓ [信息]${NC} $1"
 }
 
 print_warn() {
-    echo -e "${YELLOW}[警告]${NC} $1"
+    echo -e "${YELLOW}⚠ [警告]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[错误]${NC} $1"
+    echo -e "${RED}✗ [错误]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}🎉 $1${NC}"
 }
 
 # 检测是否为中国大陆 IP
@@ -210,7 +214,7 @@ create_directories() {
 
 # 下载并解压文件
 download_and_extract() {
-    print_info "正在从 GitHub 下载 ScuSSLVPN..."
+    print_info "📥 正在从 GitHub 下载 ScuSSLVPN..."
     
     cd ${TEMP_DIR}
     
@@ -226,15 +230,15 @@ download_and_extract() {
         exit 1
     fi
     
-    print_info "正在解压文件..."
+    print_info "📦 正在解压文件..."
     unzip -o ScuSSLVPN.zip
     
-    print_info "下载和解压完成"
+    print_info "✅ 下载和解压完成"
 }
 
 # 安装文件
 install_files() {
-    print_info "正在安装 ScuSSLVPN 文件..."
+    print_info "🔧 正在安装 ScuSSLVPN 文件..."
     
     cd ${TEMP_DIR}
     
@@ -268,7 +272,7 @@ install_files() {
 
 # 配置 IP 转发
 setup_ip_forwarding() {
-    print_info "正在配置 IP 转发..."
+    print_info "🔀 正在配置 IP 转发..."
     
     # 检查当前 IP 转发状态
     local current_forward=$(cat /proc/sys/net/ipv4/ip_forward)
@@ -306,7 +310,7 @@ setup_ip_forwarding() {
 
 # 配置 NAT 转发
 setup_nat_forwarding() {
-    print_info "正在配置 NAT 转发..."
+    print_info "🛡️  正在配置 NAT 转发..."
     
     # 关闭 firewalld（如果存在）
     if command -v firewalld &> /dev/null || systemctl list-unit-files | grep -q firewalld; then
@@ -418,7 +422,7 @@ setup_nat_forwarding() {
 
 # 创建 systemd 服务
 create_service() {
-    print_info "正在创建 systemd 服务..."
+    print_info "⚙️  正在创建 systemd 服务..."
     
     cat > ${SERVICE_FILE} << 'EOF'
 [Unit]
@@ -451,13 +455,13 @@ EOF
 
 # 启用并启动服务
 start_service() {
-    print_info "正在重新加载 systemd 守护进程..."
+    print_info "🔄 正在重新加载 systemd 守护进程..."
     systemctl daemon-reload
     
-    print_info "正在启用 ${SERVICE_NAME} 服务..."
+    print_info "✨ 正在启用 ${SERVICE_NAME} 服务..."
     systemctl enable ${SERVICE_NAME}
     
-    print_info "正在启动 ${SERVICE_NAME} 服务..."
+    print_info "🚀 正在启动 ${SERVICE_NAME} 服务..."
     systemctl start ${SERVICE_NAME}
     
     # 等待服务启动
@@ -465,7 +469,7 @@ start_service() {
     
     # 检查服务状态
     if systemctl is-active --quiet ${SERVICE_NAME}; then
-        print_info "${SERVICE_NAME} 服务已成功运行！"
+        print_success "${SERVICE_NAME} 服务已成功运行！"
     else
         print_error "${SERVICE_NAME} 服务启动失败"
         print_info "查看日志: journalctl -u ${SERVICE_NAME} -n 50"
@@ -475,7 +479,7 @@ start_service() {
 
 # 清理临时文件
 cleanup() {
-    print_info "正在清理临时文件..."
+    print_info "🧹 正在清理临时文件..."
     rm -rf ${TEMP_DIR}
     print_info "清理完成"
 }
@@ -514,36 +518,38 @@ display_info() {
     
     echo ""
     echo "=========================================="
-    print_info "ScuSSLVPN 安装完成！"
+    print_success "ScuSSLVPN 安装成功完成！"
     echo "=========================================="
     echo ""
-    echo "安装目录："
+    
+    # 详细信息部分
+    echo -e "${BLUE}📁 安装目录：${NC}"
     echo "  二进制文件: ${INSTALL_DIR}/scu-sslvpn"
     echo "  配置文件:   ${CONF_DIR}/"
     echo "  日志文件:   ${LOG_DIR}/"
     echo ""
     echo "=========================================="
-    echo -e "${GREEN}访问信息：${NC}"
+    echo -e "${GREEN}🌐 访问信息：${NC}"
     echo "=========================================="
-    echo -e "${YELLOW}服务器IP地址:${NC}"
+    echo -e "${YELLOW}📡 服务器IP地址:${NC}"
     echo "  公网IP: ${public_ip}"
     echo "  内网IP: ${private_ip}"
     echo ""
-    echo -e "${YELLOW}后台管理页面:${NC}"
+    echo -e "${YELLOW}🖥️  后台管理页面:${NC}"
     echo "  公网访问: https://${public_ip}:1024"
     echo "  内网访问: https://${private_ip}:1024"
     echo ""
-    echo -e "${YELLOW}Cisco 连接端口:${NC}"
+    echo -e "${YELLOW}🔌 Cisco 连接端口:${NC}"
     echo "  TCP: 443"
     echo "  UDP: 443"
     echo ""
-    echo -e "${YELLOW}管理员账户信息:${NC}"
+    echo -e "${YELLOW}👤 管理员账户信息:${NC}"
     echo "  请联系作者获取默认管理员账户"
-    echo "  邮箱: shangkouyou@gmail.com"
-    echo "  微信: shangkouyou"
+    echo "  📧 邮箱: shangkouyou@gmail.com"
+    echo "  💬 微信: shangkouyou"
     echo "=========================================="
     echo ""
-    echo "服务管理命令："
+    echo -e "${BLUE}⚙️  服务管理命令：${NC}"
     echo "  启动服务:   systemctl start ${SERVICE_NAME}"
     echo "  停止服务:   systemctl stop ${SERVICE_NAME}"
     echo "  重启服务:   systemctl restart ${SERVICE_NAME}"
@@ -551,18 +557,16 @@ display_info() {
     echo "  查看日志:   journalctl -u ${SERVICE_NAME} -f"
     echo "  重载配置:   systemctl daemon-reload"
     echo ""
-    echo "当前服务状态："
-    systemctl status ${SERVICE_NAME} --no-pager -l
-    echo ""
 }
 
 # 卸载 ScuSSLVPN
 uninstall_scusslvpn() {
-    print_warn "开始卸载 ScuSSLVPN..."
+    echo ""
+    echo -e "${RED}🗑️  开始卸载 ScuSSLVPN...${NC}"
     echo ""
     
     # 确认卸载
-    read -p "$(echo -e "${RED}确定要卸载 ScuSSLVPN 吗？此操作将删除所有文件和配置！(yes/no): ${NC}")" confirm
+    read -p "$(echo -e "${RED}⚠️  确定要卸载 ScuSSLVPN 吗？此操作将删除所有文件和配置！(yes/no): ${NC}")" confirm
     if [ "$confirm" != "yes" ]; then
         print_info "取消卸载"
         exit 0
@@ -661,14 +665,15 @@ uninstall_scusslvpn() {
     
     echo ""
     echo "=========================================="
-    print_info "ScuSSLVPN 卸载完成！"
+    print_success "ScuSSLVPN 卸载完成！"
     echo "=========================================="
     echo ""
 }
 
 # 主安装流程
 install_scusslvpn() {
-    print_info "开始安装 ScuSSLVPN..."
+    echo ""
+    echo -e "${BLUE}🚀 开始安装 ScuSSLVPN...${NC}"
     echo ""
     
     check_root
@@ -685,9 +690,14 @@ install_scusslvpn() {
     create_service
     start_service
     cleanup
-    display_info
     
-    print_info "安装成功完成！"
+    # 先显示成功消息
+    echo ""
+    print_success "安装成功完成！"
+    echo ""
+    
+    # 然后显示详细信息
+    display_info
 }
 
 # 显示菜单
